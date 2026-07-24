@@ -743,12 +743,10 @@ function EnquiryPage() {
 
 function App() {
   return (
-    <BrowserRouter
-      basename={import.meta.env.PROD ? "/WayoutWebsiteSC" : ""}
-    >
-      <TravelApp />
-    </BrowserRouter>
-  );
+    <HashRouter>
+      <AppShell />
+    </HashRouter>
+  )
 }
 
-export default App;
+export default App
