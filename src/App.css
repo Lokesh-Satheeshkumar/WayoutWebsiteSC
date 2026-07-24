@@ -372,16 +372,61 @@ img {
 
 .enquiry-form {
   display: grid;
-  gap: 0.9rem;
+  gap: 1rem;
   margin-top: 1.2rem;
 }
 
+.enquiry-form label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: #0f172a;
+}
+
+.enquiry-form .form-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
 .enquiry-form input,
-.enquiry-form textarea {
+.enquiry-form textarea,
+.enquiry-form select {
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 16px;
   padding: 0.85rem 1rem;
   outline: 0;
+  background: #fff;
+}
+
+.enquiry-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.enquiry-card {
+  padding: 2rem;
+}
+
+.search-results .section-block {
+  margin-top: 1.2rem;
+}
+
+.search-results h3 {
+  margin-bottom: 1rem;
+}
+
+.place-card--link {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.place-card--link:hover {
+  transform: translateY(-3px);
+}
+
+.place-card--static {
+  cursor: default;
 }
 
 .history-item {
