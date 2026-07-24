@@ -1,9 +1,13 @@
 ﻿import { useEffect, useMemo, useState } from 'react'
 import { HashRouter, Link, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import emailjs from '@emailjs/browser'
 import './App.css'
 
 const API_URL = 'https://6a4791b7abfcbaade118ac80.mockapi.io/TripData/app_data'
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
+const EMAILJS_SERVICE_ID = 'service_1xgtzhr'
+const EMAILJS_TEMPLATE_ID = 'template_f3li2kr'
+const EMAILJS_PUBLIC_KEY = 'AdfOAXHsmzpiT0i-h'
 
 function normalizeTravelData(payload) {
   const source = Array.isArray(payload) ? payload[0] : payload || {}
@@ -67,6 +71,8 @@ function AppShell() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    emailjs.init(EMAILJS_PUBLIC_KEY)
+
     let isMounted = true
 
     async function loadData() {
@@ -517,112 +523,235 @@ function PlacePage({ appData }) {
 }
 
 function EnquiryPage() {
+  const defaultFormData = {
+    fullName: '',
+    phoneNumber: '',
+    email: '',
+    preferredDestination: '',
+    fromDate: '',
+    toDate: '',
+    numberOfDays: '',
+    adults: '',
+    children: '',
+    tripType: 'College IV',
+    accommodation: 'Budget Hotel',
+    hotelResort: '',
+    transportation: 'Bus',
+    transportationSeater: '4 Seater',
+    budgetRange: '',
+    specificRequests: '',
+    remarks: '',
+  }
+
+  const [formData, setFormData] = useState(defaultFormData)
+  const [isSending, setIsSending] = useState(false)
+  const [statusMessage, setStatusMessage] = useState('')
+  const [statusType, setStatusType] = useState('')
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
+  const validateForm = () => {
+    if (!formData.fullName.trim()) {
+      return 'Full Name is required.'
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      return 'Phone Number is required.'
+    }
+
+    if (!/^\d+$/.test(formData.phoneNumber.trim())) {
+      return 'Phone Number must contain only digits.'
+    }
+
+    if (formData.email.trim() && !validateEmail(formData.email.trim())) {
+      return 'Please enter a valid email address.'
+    }
+
+    if (formData.fromDate && formData.toDate && formData.fromDate > formData.toDate) {
+      return 'From Date cannot be after To Date.'
+    }
+
+    return ''
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    const validationError = validateForm()
+    if (validationError) {
+      setStatusType('error')
+      setStatusMessage(validationError)
+      return
+    }
+
+    setIsSending(true)
+    setStatusMessage('')
+    setStatusType('')
+
+    const templateParams = {
+      full_name: formData.fullName,
+      phone_number: formData.phoneNumber,
+      email: formData.email,
+      preferred_destination: formData.preferredDestination,
+      from_date: formData.fromDate,
+      to_date: formData.toDate,
+      number_of_days: formData.numberOfDays,
+      adults: formData.adults,
+      children: formData.children,
+      trip_type: formData.tripType,
+      accommodation: formData.accommodation,
+      hotel_resort: formData.hotelResort,
+      transportation: formData.transportation,
+      transportation_seater: formData.transportationSeater,
+      budget_range: formData.budgetRange,
+      specific_requests: formData.specificRequests,
+      remarks: formData.remarks,
+    }
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+      setStatusType('success')
+      setStatusMessage('Thank you! Your enquiry has been sent successfully. Our team will contact you shortly.')
+      setFormData(defaultFormData)
+    } catch (error) {
+      console.error('EmailJS send error:', error)
+      setStatusType('error')
+      setStatusMessage('Failed to send enquiry. Please try again.')
+    } finally {
+      setIsSending(false)
+    }
+  }
+
   return (
     <div className="container sections">
       <div className="section-card enquiry-card">
         <p className="eyebrow">Enquiry</p>
         <h1>Plan your next escape with a specialist</h1>
         <p>Share your preferred destination, travel dates, and group size and we’ll help you shape the itinerary.</p>
-        <form className="enquiry-form">
-          <label>Full Name *</label>
-          <input placeholder="Full Name" required />
+        <form className="enquiry-form" onSubmit={handleSubmit}>
+          <label htmlFor="fullName">Full Name *</label>
+          <input id="fullName" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Full Name" required />
 
-          <label>Phone Number *</label>
-          <input placeholder="Phone Number" required />
+          <label htmlFor="phoneNumber">Phone Number *</label>
+          <input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} placeholder="Phone Number" required />
 
-          <label>Email</label>
-          <input type="email" placeholder="Email" />
+          <label htmlFor="email">Email</label>
+          <input id="email" type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email" />
 
-          <label>Preferred Destinations</label>
-          <textarea rows="3" placeholder="Preferred Destinations" />
-
-          <div className="form-grid-2">
-            <div>
-              <label>From date</label>
-              <input type="date" />
-            </div>
-            <div>
-              <label>To date</label>
-              <input type="date" />
-            </div>
-          </div>
-
-          <label>Number of Days (e.g., 4N/5D)</label>
-          <input placeholder="Number of Days" />
+          <label htmlFor="preferredDestination">Preferred Destination</label>
+          <input id="preferredDestination" name="preferredDestination" value={formData.preferredDestination} onChange={handleInputChange} placeholder="Preferred Destination" />
 
           <div className="form-grid-2">
             <div>
-              <label>Adults</label>
-              <input placeholder="Adults" />
+              <label htmlFor="fromDate">From Date</label>
+              <input id="fromDate" type="date" name="fromDate" value={formData.fromDate} onChange={handleInputChange} />
             </div>
             <div>
-              <label>Children</label>
-              <input placeholder="Children" />
+              <label htmlFor="toDate">To Date</label>
+              <input id="toDate" type="date" name="toDate" value={formData.toDate} onChange={handleInputChange} />
             </div>
           </div>
 
-          <label>Type of Trip</label>
-          <select defaultValue="College IV">
+          <label htmlFor="numberOfDays">Number of Days</label>
+          <input id="numberOfDays" name="numberOfDays" value={formData.numberOfDays} onChange={handleInputChange} placeholder="Number of Days" />
+
+          <div className="form-grid-2">
+            <div>
+              <label htmlFor="adults">Adults</label>
+              <input id="adults" name="adults" value={formData.adults} onChange={handleInputChange} placeholder="Adults" />
+            </div>
+            <div>
+              <label htmlFor="children">Children</label>
+              <input id="children" name="children" value={formData.children} onChange={handleInputChange} placeholder="Children" />
+            </div>
+          </div>
+
+          <label htmlFor="tripType">Type of Trip</label>
+          <select id="tripType" name="tripType" value={formData.tripType} onChange={handleInputChange}>
             <option>College IV</option>
-            <option>Business</option>
+            <option>Family Trip</option>
             <option>Honeymoon</option>
-            <option>Group Tour</option>
-            <option>Family Vacation</option>
-            <option>Other</option>
+            <option>Friends Trip</option>
+            <option>Corporate Tour</option>
+            <option>Pilgrimage</option>
+            <option>Adventure Trip</option>
+            <option>Solo Trip</option>
+            <option>Custom Tour</option>
           </select>
 
-          <label>Preferred Accommodation Type</label>
-          <select defaultValue="Hotel">
-            <option>Hotel</option>
+          <label htmlFor="accommodation">Accommodation</label>
+          <select id="accommodation" name="accommodation" value={formData.accommodation} onChange={handleInputChange}>
+            <option>Budget Hotel</option>
+            <option>3 Star Hotel</option>
+            <option>4 Star Hotel</option>
+            <option>5 Star Hotel</option>
             <option>Resort</option>
-            <option>Airbnb/Private Rental</option>
-            <option>Cruise</option>
-            <option>Other</option>
+            <option>Villa</option>
+            <option>No Accommodation</option>
           </select>
 
-          <label>Specific Hotel or Resort</label>
-          <input placeholder="Specific Hotel or Resort" />
+          <label htmlFor="hotelResort">Specific Hotel / Resort</label>
+          <input id="hotelResort" name="hotelResort" value={formData.hotelResort} onChange={handleInputChange} placeholder="Specific Hotel or Resort" />
 
-          <label>Transportation Preferences</label>
-          <select defaultValue="Flight">
-            <option>Flight</option>
+          <label htmlFor="transportation">Transportation Preferences</label>
+          <select id="transportation" name="transportation" value={formData.transportation} onChange={handleInputChange}>
+            <option>Bus</option>
+            <option>Tempo Traveller</option>
+            <option>Car</option>
+            <option>Cab</option>
             <option>Train</option>
-            <option>Car Rental</option>
-            <option>Private Transfer</option>
-            <option>Other</option>
+            <option>Flight</option>
+            <option>Self Drive</option>
           </select>
 
-          <label>Transportation Seater</label>
-          <select defaultValue="">
-            <option value="">-- Select Seater --</option>
-            <option>14 Seater</option>
-            <option>21 Seater</option>
-            <option>30 Seater</option>
-            <option>54 Seater</option>
+          <label htmlFor="transportationSeater">Transportation Seater</label>
+          <select id="transportationSeater" name="transportationSeater" value={formData.transportationSeater} onChange={handleInputChange}>
+            <option>4 Seater</option>
+            <option>7 Seater</option>
+            <option>12 Seater</option>
+            <option>17 Seater</option>
+            <option>26 Seater</option>
+            <option>35 Seater</option>
+            <option>49 Seater</option>
           </select>
 
-          <label>Budget Range (per person)</label>
-          <input placeholder="Budget Range" />
+          <label htmlFor="budgetRange">Budget Range</label>
+          <input id="budgetRange" name="budgetRange" value={formData.budgetRange} onChange={handleInputChange} placeholder="Budget Range" />
 
-          <label>Specific Requests or Requirements</label>
-          <textarea rows="4" placeholder="Specific Requests or Requirements" />
+          <label htmlFor="specificRequests">Specific Requests / Requirements</label>
+          <textarea id="specificRequests" name="specificRequests" rows="4" value={formData.specificRequests} onChange={handleInputChange} placeholder="Specific Requests or Requirements" />
 
-          <label>Remarks</label>
-          <textarea rows="3" placeholder="Remarks" />
+          <label htmlFor="remarks">Remarks</label>
+          <textarea id="remarks" name="remarks" rows="3" value={formData.remarks} onChange={handleInputChange} placeholder="Remarks" />
 
-          <button type="submit">Submit</button>
+          {statusMessage && (
+            <p className={`enquiry-message enquiry-message--${statusType}`}>{statusMessage}</p>
+          )}
+
+          <button type="submit" disabled={isSending}>{isSending ? 'Sending...' : 'Submit'}</button>
         </form>
       </div>
     </div>
   )
 }
 
+import { BrowserRouter } from "react-router-dom";
+
+const basename =
+  import.meta.env.PROD ? "/WayoutWebsiteSC" : "/";
+
 function App() {
   return (
-    <HashRouter basename="/WayoutWebsiteSC">
-      <AppShell />
-    </HashRouter>
-  )
+    <BrowserRouter basename={basename}>
+      <TravelApp />
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
