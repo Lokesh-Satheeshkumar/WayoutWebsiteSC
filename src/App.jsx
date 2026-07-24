@@ -448,23 +448,12 @@ function SearchPage({ appData }) {
     </div>
   )
 }
-
 function App() {
-  return (
-    <BrowserRouter>
-      <TravelApp />
-    </BrowserRouter>
-  )
-}
-
-export default App
-s</div> }
-
-// WRAPPER DEFINITION WITH REPOSITORY BASENAME ROUTING ADDED
-export default function App() {
   return (
     <BrowserRouter basename="/WayoutWebsiteSC">
       <TravelApp />
     </BrowserRouter>
   )
 }
+
+export default App
