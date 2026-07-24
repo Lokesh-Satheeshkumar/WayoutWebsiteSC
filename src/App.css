@@ -612,45 +612,50 @@ img {
   }
 }
 
-@media (max-width: 760px) {
-  .top-nav {
-    position: sticky;
-  }
+@media (max-width:760px){
 
-  .nav-shell {
-    padding: 0.85rem 0;
-  }
+.nav-shell{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:15px;
+}
 
-  .nav-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
+.brand{
+    margin:0;
+    font-size:28px;
+}
 
-  .desktop-nav,
-  .top-nav .search-box {
-    display: none;
-  }
+.nav-actions{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:15px;
+    margin:0;
+}
 
-  .mobile-nav {
-    display: flex;
-  }
+.desktop-nav{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    width:100%;
+}
 
-  .hero-section {
-    padding: 2rem 0 2.5rem;
-  }
+.search-box{
+    display:flex;
+    width:100%;
+    max-width:420px;
+}
 
-  .hero-search {
-    flex-direction: column;
-    border-radius: 20px;
-  }
+.search-box input{
+    flex:1;
+}
 
-  .hero-search input {
-    width: 100%;
-  }
+.search-box button{
+    white-space:nowrap;
+}
 
-  .hero-search button {
-    width: 100%;
-  }
 
   .hero-card {
     padding: 1.25rem;
