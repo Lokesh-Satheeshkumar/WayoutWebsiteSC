@@ -741,14 +741,11 @@ function EnquiryPage() {
   )
 }
 
-import { BrowserRouter } from "react-router-dom";
-
-const basename =
-  import.meta.env.PROD ? "/WayoutWebsiteSC" : "/";
-
 function App() {
   return (
-    <BrowserRouter basename={basename}>
+    <BrowserRouter
+      basename={import.meta.env.PROD ? "/WayoutWebsiteSC" : ""}
+    >
       <TravelApp />
     </BrowserRouter>
   );
