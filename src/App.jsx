@@ -123,10 +123,10 @@ function AppShell() {
               <Link className="nav-link active" to="/">Home</Link>
               <Link className="nav-link" to="/enquiry">Enquiry</Link>
             </nav>
-            <form className="search-box" onSubmit={handleSearchSubmit}>
+         {/* //   <form className="search-box" onSubmit={handleSearchSubmit}>
               <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search destinations" />
               <button type="submit">Go</button>
-            </form>
+            </form> */}
           </div>
         </div>
       </header>
