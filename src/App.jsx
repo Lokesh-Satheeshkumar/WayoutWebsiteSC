@@ -96,8 +96,6 @@ function App() {
   const appData = useMemo(() => normalizeTravelData(travelData), [travelData])
   const totalPlaces = appData.states.reduce((count, state) => count + state.cities.reduce((cityCount, city) => cityCount + city.places.length, 0), 0)
   const featuredState = appData.states[0]
-  const featuredCity = featuredState?.cities?.[0]
-  const featuredPlaces = featuredCity?.places?.slice(0, 4) || []
 
   return (
     <div className="travel-app">
@@ -106,8 +104,8 @@ function App() {
           <a className="brand" href="#">TripPlanner</a>
           <nav className="desktop-nav" aria-label="Main navigation">
             <a className="nav-link active" href="#">Home</a>
-            <a className="nav-link" href="#">About</a>
-            <a className="nav-link" href="#">Packages</a>
+            <a className="nav-link" href="#">States</a>
+            <a className="nav-link" href="#">Enquiry</a>
           </nav>
           <form className="search-box" onSubmit={(event) => event.preventDefault()}>
             <input placeholder="Search destinations" />
@@ -213,29 +211,6 @@ function App() {
           </div>
         </section>
 
-        <section className="container sections">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Featured itinerary</p>
-              <h2>{featuredCity?.name || 'Latest city plan'}</h2>
-            </div>
-          </div>
-          <div className="place-list">
-            {featuredPlaces.map((place) => (
-              <article key={place.place_id} className="place-card">
-                <img src={place.place_img} alt={place.name} />
-                <div>
-                  <div className="place-meta">
-                    <span>Day {place.day}</span>
-                    <span>{place.time}</span>
-                  </div>
-                  <h3>{place.name}</h3>
-                  <p>Curated stop from the live API destination data.</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
       </main>
     </div>
   )
