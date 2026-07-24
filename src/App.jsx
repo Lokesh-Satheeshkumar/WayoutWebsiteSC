@@ -117,7 +117,7 @@ function AppShell() {
     <div className="travel-app">
       <header className="top-nav top-nav--hero">
         <div className="container nav-shell">
-          <Link className="brand" to="/">TripPlanner</Link>
+          <Link className="brand" to="/">Wayout Tourz</Link>
           <div className="nav-actions">
             <nav className="desktop-nav" aria-label="Main navigation">
               <Link className="nav-link active" to="/">Home</Link>

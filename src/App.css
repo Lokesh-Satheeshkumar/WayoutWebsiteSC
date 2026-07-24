@@ -697,27 +697,37 @@ img {
 /* ---------- Header ---------- */
 
 .nav-shell{
-    flex-direction:column;
-    gap:15px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
 }
 
 .brand{
+    margin:0;
     font-size:28px;
 }
 
 .nav-actions{
-    width:100%;
-    flex-direction:column;
-    gap:15px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-left:auto;
+    width:auto;
 }
 
 .desktop-nav{
-    justify-content:center;
+    display:flex;
+    gap:18px;
+    width:auto;
 }
 
 .search-box{
     width:100%;
-    max-width:420px;
+    max-width:none;
+    margin-top:10px;
 }
 
   .place-card {
@@ -765,17 +775,26 @@ img {
     width: min(1160px, calc(100% - 1.5rem));
   }
 
-  .brand {
-    font-size: 1.05rem;
-  }
+  .desktop-nav{
+    gap:14px;
+}
+
+  
+.brand{
+    font-size:22px;
+}
 
   .hero-copy p {
     font-size: 0.95rem;
   }
+  .nav-link{
+    font-size:15px;
+}
 
-  .hero-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.5rem;
+
+   .hero-stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .hero-stats > div {
