@@ -1,13 +1,34 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState, useRef } from 'react'
 import { HashRouter, Link, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import emailjs from '@emailjs/browser'
 import './App.css'
+
+// Import carousel images
+import crop1 from './assets/crop1.jpeg'
+import crop2 from './assets/crop2.jpeg'
+import crop3 from './assets/corp3.jpeg'
+import crop4 from './assets/crop4.jpeg'
+import crop5 from './assets/crop5.jpeg'
+import clg1 from './assets/clg (1).jpeg'
+import clg2 from './assets/clg (2).jpeg'
+import clg3 from './assets/clg (3).jpeg'
+import clg4 from './assets/clg (4).jpeg'
+import clg5 from './assets/clg (5).jpeg'
+import clg6 from './assets/clg (6).jpeg'
+import clg7 from './assets/clg (7).jpeg'
+import clg8 from './assets/clg (8).jpeg'
+import clg9 from './assets/clg (9).jpeg'
+import clg10 from './assets/clg (10).jpeg'
+
+const corporateImages = [crop1, crop2, crop3, crop4, crop5]
+const collegeImages = [clg1, clg2, clg3, clg4, clg5, clg6, clg7, clg8, clg9, clg10]
 
 const API_URL = 'https://6a4791b7abfcbaade118ac80.mockapi.io/TripData/app_data'
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
 const EMAILJS_SERVICE_ID = 'service_1xgtzhr'
 const EMAILJS_TEMPLATE_ID = 'template_f3li2kr'
 const EMAILJS_PUBLIC_KEY = 'AdfOAXHsmzpiT0i-h'
+const BACKEND_URL = "http://localhost:3000/api/enquiry";
 
 function normalizeTravelData(payload) {
   const source = Array.isArray(payload) ? payload[0] : payload || {}
@@ -146,6 +167,116 @@ function HomePage({ appData, loading, error, totalPlaces, featuredState, searchQ
   const normalizedQuery = searchQuery.trim().toLowerCase()
   const hasSearch = normalizedQuery.length > 0
 
+const [corporateScroll, setCorporateScroll] = useState(0)
+const [corporateTransition, setCorporateTransition] = useState(true)
+
+const [collegeScroll, setCollegeScroll] = useState(0)
+const [collegeTransition, setCollegeTransition] = useState(true)
+
+const corporateTimerRef = useRef(null)
+  const collegeTimerRef = useRef(null)
+
+  // Image card width (in percentage): 100 / number of visible items
+  const CARD_WIDTH = 25 // Show 4 images at once (100 / 4 = 25%)
+const corporateImagesExtended = [
+  ...corporateImages,
+  ...corporateImages,
+  ...corporateImages,
+]  
+const collegeImagesExtended = [
+  ...collegeImages,
+  ...collegeImages,
+  ...collegeImages,
+]
+useEffect(() => {
+  corporateTimerRef.current = setInterval(() => {
+    setCorporateScroll((prev) => prev + 1)
+  }, 100)
+
+  return () => clearInterval(corporateTimerRef.current)
+}, [])
+
+
+useEffect(() => {
+
+  if (corporateScroll === corporateImages.length) {
+
+    setTimeout(() => {
+
+      setCorporateTransition(false)
+
+      setCorporateScroll(0)
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setCorporateTransition(true)
+        })
+      })
+
+    }, 600)
+
+  }
+
+}, [corporateScroll])
+
+  // Very slow continuous college carousel scroll
+  useEffect(() => {
+    collegeTimerRef.current = setInterval(() => {
+      setCollegeScroll((prev) => prev + 1)
+    }, 100) // Very slow: 3 seconds per image
+    return () => clearInterval(collegeTimerRef.current)
+  }, [])
+
+  useEffect(() => {
+
+  if (collegeScroll === collegeImages.length) {
+
+    setTimeout(() => {
+
+      setCollegeTransition(false)
+
+      setCollegeScroll(0)
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setCollegeTransition(true)
+        })
+      })
+
+    }, 600)
+
+  }
+
+}, [collegeScroll])
+
+  const [visibleElements, setVisibleElements] = useState({})
+
+  // Scroll animation - reveal content as it enters viewport
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px',
+    }
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setVisibleElements((prev) => ({
+            ...prev,
+            [entry.target.id]: true,
+          }))
+        }
+      })
+    }
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions)
+
+    const elementsToObserve = document.querySelectorAll('[data-animate]')
+    elementsToObserve.forEach((el) => observer.observe(el))
+
+    return () => observer.disconnect()
+  }, [])
+
   const searchResults = useMemo(() => {
     if (!hasSearch) return { states: [], cities: [], places: [] }
 
@@ -179,27 +310,17 @@ function HomePage({ appData, loading, error, totalPlaces, featuredState, searchQ
   return (
     <>
       <section className="hero-section">
-        <div className="container hero-grid">
+        <div className="hero-grid">
           <div className="hero-copy">
             <span className="eyebrow">Travel Blue • Live itinerary feed</span>
-            <h1>Your next journey begins here.</h1>
+            <h1>Wayout Tourz</h1>
             <p>Discover destinations, travel moods, and city highlights directly from the live MockAPI response.</p>
-            <form className="hero-search" onSubmit={onSearchSubmit}>
-              <input value={searchQuery} onChange={onSearchChange} placeholder="Search cities, states or places" />
-              <button type="submit">Start planning</button>
-            </form>
+            <Link to="/enquiry" className="hero-cta-button">Enquiry</Link>
             <div className="hero-stats">
               <div><strong>{appData.states.length}+</strong><span>States</span></div>
               <div><strong>{totalPlaces}+</strong><span>Places</span></div>
               <div><strong>4.9</strong><span>Traveler rating</span></div>
             </div>
-          </div>
-
-          <div className="hero-card">
-            <p className="card-label">Live API snapshot</p>
-            <h3>{featuredState?.name || 'Featured destination'}</h3>
-            <p>{featuredState?.description || 'The latest destination data from the API is now shown here.'}</p>
-            <button type="button">View itinerary</button>
           </div>
         </div>
       </section>
@@ -282,60 +403,15 @@ function HomePage({ appData, loading, error, totalPlaces, featuredState, searchQ
       )}
 
       <main>
-        <section className="container sections">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Featured banners</p>
-              <h2>Pick a vibe for your next escape</h2>
+        <section className="sections-wrapper" id="states-section" data-animate>
+          <div className="sections-inner">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Destinations</p>
+                <h2>Popular states to explore</h2>
+              </div>
             </div>
-          </div>
-          {loading ? (
-            <p className="empty-state">Loading travel data…</p>
-          ) : error ? (
-            <p className="empty-state">{error}</p>
-          ) : (
-            <div className="banner-grid">
-              {appData.banners.map((banner) => (
-                <article key={banner.title} className="banner-card">
-                  <img src={banner.image} alt={banner.title} />
-                  <div className="banner-text">
-                    <h3>{banner.title}</h3>
-                    <p>{banner.subtitle}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="container sections">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Travel vibes</p>
-              <h2>Browse experiences by style</h2>
-            </div>
-          </div>
-          <div className="vibe-grid">
-            {appData.travelVibes.map((item) => (
-              <article key={item.vibe_id} className="vibe-card">
-                <img src={item.image} alt={item.title} />
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.subtitle}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="container sections">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Destinations</p>
-              <h2>Popular states to explore</h2>
-            </div>
-          </div>
-          <div className="state-grid">
+            <div className="state-grid">
             {appData.states.map((state) => (
               <Link key={state.state_id} to={`/state/${state.state_id}`} className="state-card">
                 <img src={state.image} alt={state.name} />
@@ -346,10 +422,65 @@ function HomePage({ appData, loading, error, totalPlaces, featuredState, searchQ
                 </div>
               </Link>
             ))}
+            </div>
           </div>
         </section>
 
-        <section className="container sections home-highlight-section">
+        <section className="sections-wrapper" id="corp-section" data-animate>
+          <div className="sections-inner">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Recent Trips</p>
+                <h2>Corporate adventures</h2>
+              </div>
+            </div>
+            <div className="carousel-wrapper-scroll">
+
+<div
+  className="carousel-container-scroll"
+  style={{
+    transform: `translateX(-${corporateScroll * CARD_WIDTH}%)`,
+    transition: corporateTransition
+      ? "transform 0.6s ease"
+      : "none",
+  }}
+>              {corporateImagesExtended.map((img, idx) => (
+                <div key={`corp-${idx}`} className="carousel-slide-scroll">
+                  <img src={img} alt={`Corporate trip ${idx + 1}`} />
+                </div>
+              ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="sections-wrapper" id="college-section" data-animate>
+          <div className="sections-inner">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Student Journeys</p>
+                <h2>College IV experiences</h2>
+              </div>
+            </div>
+            <div className="carousel-wrapper-scroll">
+            <div className="carousel-container-scroll" style={{
+  transform: `translateX(-${collegeScroll * CARD_WIDTH}%)`,
+  transition: collegeTransition
+    ? "transform 0.6s ease"
+    : "none",
+}}>
+              {collegeImagesExtended.map((img, idx) => (
+                <div key={`clg-${idx}`} className="carousel-slide-scroll">
+                  <img src={img} alt={`College IV trip ${idx + 1}`} />
+                </div>
+              ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="sections-wrapper" id="highlight-section" data-animate>
+          <div className="sections-inner home-highlight-section">
           <div className="home-highlight-copy">
             <p className="eyebrow">Why travelers choose us</p>
             <h2>Plan every stop with calm confidence.</h2>
@@ -364,6 +495,7 @@ function HomePage({ appData, loading, error, totalPlaces, featuredState, searchQ
             <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80" alt="Travel landscape" />
             <img src="https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=800&q=80" alt="Roadtrip scenery" />
             <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80" alt="Mountain destination" />
+          </div>
           </div>
         </section>
       </main>
@@ -614,18 +746,76 @@ function EnquiryPage() {
       remarks: formData.remarks,
     }
 
-    try {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-      setStatusType('success')
-      setStatusMessage('Thank you! Your enquiry has been sent successfully. Our team will contact you shortly.')
-      setFormData(defaultFormData)
-    } catch (error) {
-      console.error('EmailJS send error:', error)
-      setStatusType('error')
-      setStatusMessage('Failed to send enquiry. Please try again.')
-    } finally {
-      setIsSending(false)
+  try {
+
+ const response = await axios.post(
+  `https://graph.facebook.com/v23.0/${process.env.PHONE_NUMBER_ID}/messages`,
+  {
+    messaging_product: "whatsapp",
+    to: process.env.RECIPIENT,
+    type: "template",
+    template: {
+      name: "tour_enquiry",
+      language: {
+        code: "en"
+      },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: req.body.name || "" },
+            { type: "text", text: req.body.phone || "" },
+            { type: "text", text: req.body.email || "" },
+            { type: "text", text: req.body.destination || "" },
+            { type: "text", text: req.body.fromDate || "" },
+            { type: "text", text: req.body.toDate || "" },
+            { type: "text", text: req.body.adults || "" },
+            { type: "text", text: req.body.children || "" },
+            { type: "text", text: req.body.budget || "" },
+            { type: "text", text: req.body.remarks || "" }
+          ]
+        }
+      ]
     }
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
+
+console.log(response.data);
+
+  if (!response.ok) {
+    throw new Error("WhatsApp API failed");
+  }
+
+  // Send Email
+  await emailjs.send(
+    EMAILJS_SERVICE_ID,
+    EMAILJS_TEMPLATE_ID,
+    templateParams
+  );
+
+  setStatusType('success');
+  setStatusMessage('Thank you! Your enquiry has been sent successfully.');
+
+  setFormData(defaultFormData);
+
+} catch (error) {
+
+  console.error(error);
+
+  setStatusType('error');
+  setStatusMessage('Failed to send enquiry. Please try again.');
+
+} finally {
+
+  setIsSending(false);
+
+}
   }
 
   return (
