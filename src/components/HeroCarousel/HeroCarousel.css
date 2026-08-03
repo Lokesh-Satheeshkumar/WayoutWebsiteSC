@@ -20,6 +20,30 @@
   isolation: isolate;
 }
 
+/* =========================================================
+   Cinematic bottom fade — seamlessly melts the hero into the
+   destination section below. Pure CSS, sits above the bg image
+   but below the carousel content & pagination.
+   ========================================================= */
+.hero-coverflow::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 520px;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 7, 13, 0) 0%,
+    rgba(20, 18, 38, 0.55) 40%,
+    rgba(37, 29, 70, 0.85) 70%,
+    #0e1323 100%
+  );
+  will-change: opacity;
+}
+
 /* ---------- Crossfading background ---------- */
 .hero-background {
   position: absolute;
@@ -372,6 +396,28 @@
   background: linear-gradient(120deg, #ffd166, #ff7b54);
 }
 
+/* Warm sunset glow behind the pagination dots */
+.hero-pagination::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -40px;
+  width: 220px;
+  height: 120px;
+  transform: translateX(-50%);
+  z-index: -1; /* stay behind the bullets */
+  background: radial-gradient(
+    circle,
+    rgba(255, 189, 89, 0.65),
+    rgba(255, 189, 89, 0.2) 60%,
+    transparent 75%
+  );
+  filter: blur(60px);
+  opacity: 0.8;
+  pointer-events: none;
+  will-change: opacity;
+}
+
 /* =========================================================
    Responsive breakpoints (mobile-first refinements)
    ========================================================= */
@@ -431,19 +477,17 @@
     /* hug the content instead of forcing a tall, mostly-empty viewport */
     height: auto;
     min-height: 0;
-    padding: 1.5rem 0 max(1.5rem, env(safe-area-inset-bottom));
+    padding: 0.6rem 0 max(0.7rem, env(safe-area-inset-bottom));
   }
 
   .hero-carousel-wrap {
     flex: none; /* stop stretching to fill leftover vertical space */
-    padding: 0.75rem 0 1.5rem;
+    padding: 0.35rem 0 0.6rem;
   }
 
   .hero-card {
     width: 64vw;
-    height: 40vh;
-    height: 40svh;
-    max-height: 320px;
+    height: min(48vw, 220px);
     border-radius: 22px;
   }
 
@@ -456,7 +500,12 @@
   }
 
   .hero-headline {
-    margin-top: 0.5rem;
+    margin-top: 0;
+  }
+
+  .hero-headline p {
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
   }
 
   /* keep arrows on mobile too, just smaller & tucked in, to match desktop's feel */
@@ -482,7 +531,7 @@
   .hero-pagination {
     position: relative;
     bottom: auto;
-    margin-top: 0.5rem;
+    margin-top: 0.15rem;
     gap: 0.4rem;
   }
 
@@ -503,13 +552,12 @@
 /* Small / older phones (iPhone SE, small Android) */
 @media (max-width: 380px) {
   .hero-coverflow {
-    min-height: 460px;
+    min-height: 0;
   }
 
   .hero-card {
     width: 70vw;
-    height: 38vh;
-    height: 38svh;
+    height: min(50vw, 190px);
     border-radius: 18px;
   }
 

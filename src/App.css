@@ -1,7 +1,7 @@
 :root {
   font-family: Inter, 'Segoe UI', Roboto, sans-serif;
-  color: #132238;
-  background: #f6f9ff;
+  color: #f4f6ff;
+  background: #0e1323;
 }
 
 /* Scroll animations */
@@ -86,7 +86,7 @@ body {
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #f8fbff 0%, #f2f6ff 100%);
+  background: #0e1323;
 }
 
 img {
@@ -119,9 +119,9 @@ img {
 }
 
 .top-nav--hero {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 64, 175, 0.92));
-  border-bottom: 0;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+  background: linear-gradient(110deg, rgba(5, 7, 13, 0.97), rgba(22, 22, 43, 0.94));
+  border-bottom: 1px solid rgba(215, 181, 109, 0.16);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
 }
 
 /* Navbar content container - centered with proper spacing */
@@ -173,7 +173,22 @@ img {
 
 .top-nav--hero .nav-link,
 .top-nav--hero .brand {
-  color: #fff;
+  color: #f7f2e8;
+}
+
+.top-nav--hero .brand {
+  color: #d7b56d;
+  letter-spacing: 0.02em;
+}
+
+.top-nav--hero .nav-link {
+  color: rgba(247, 242, 232, 0.76);
+  transition: color 200ms ease;
+}
+
+.top-nav--hero .nav-link:hover,
+.top-nav--hero .nav-link.active {
+  color: #d7b56d;
 }
 
 .search-box {
@@ -1185,7 +1200,7 @@ img {
     display:flex;
 
     width:max-content;
-
+    
     animation:scroll 40s linear infinite;
 
 }
@@ -1200,4 +1215,446 @@ img {
         transform:translateX(-50%);
     }
 
+}
+
+/* =========================================================
+   Premium cinematic hero → destination transition
+   ========================================================= */
+
+/* Cinematic hero wrapper (scroll parallax target) */
+.hero-cinematic {
+  position: relative;
+  width: 100%;
+  background: #0e1323;
+  will-change: transform, opacity;
+  transform-origin: center top;
+}
+
+/* Ambient floating particles drifting near the transition */
+.ambient-particles {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 420px;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ambient-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 189, 89, 0.9), rgba(255, 189, 89, 0));
+  opacity: 0.12;
+  animation: driftUp linear infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes driftUp {
+  0% {
+    transform: translateY(30px) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.12;
+  }
+  80% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: translateY(-70px) scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* =========================================================
+   Destination section (overlaps the hero fade)
+   ========================================================= */
+.destination-section {
+  position: relative;
+  width: 100%;
+  padding: 0 1.5rem;
+  margin-top: -120px; /* desktop overlap */
+  z-index: 4;
+  isolation: isolate;
+  will-change: transform, opacity;
+}
+
+/* An opaque content layer prevents the fading hero from crossing the heading. */
+.destination-section::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -150px;
+  right: 0;
+  left: 0;
+  height: calc(100% + 150px);
+  background: linear-gradient(
+    180deg,
+    rgba(14, 19, 35, 0) 0,
+    #0e1323 150px,
+    #0e1323 100%
+  );
+  pointer-events: none;
+}
+
+.destination-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 90px 50px;
+  /* The destination cards are the only surfaces here—no parent card behind them. */
+  background: transparent;
+}
+
+/* Section header */
+.destination-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.destination-eyebrow {
+  margin: 0 0 0.6rem;
+  color: #d7b56d;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.destination-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 46px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.destination-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #d7b56d;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.destination-view-all span {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.destination-view-all:hover {
+  transform: translateX(6px);
+}
+
+/* Destination grid */
+.destination-grid {
+  position: relative;
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0.25rem;
+  padding: 0.25rem 0.25rem 1.25rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(215, 181, 109, 0.55) rgba(255, 255, 255, 0.06);
+}
+
+/* Fade partial state cards into the page at each end of the rail. */
+.destination-grid::before,
+.destination-grid::after,
+.carousel-wrapper-scroll::before,
+.carousel-wrapper-scroll::after {
+  content: '';
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 0;
+  width: clamp(36px, 6vw, 110px);
+  pointer-events: none;
+}
+
+.destination-grid::before,
+.carousel-wrapper-scroll::before {
+  left: 0;
+  background: linear-gradient(90deg, #0e1323 0%, rgba(14, 19, 35, 0) 100%);
+}
+
+.destination-grid::after,
+.carousel-wrapper-scroll::after {
+  right: 0;
+  background: linear-gradient(270deg, #0e1323 0%, rgba(14, 19, 35, 0) 100%);
+}
+
+.destination-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.destination-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.destination-grid::-webkit-scrollbar-thumb {
+  background: rgba(215, 181, 109, 0.55);
+  border-radius: 999px;
+}
+
+/* Premium glass destination cards */
+.destination-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  flex: 0 0 clamp(290px, 27vw, 390px);
+  scroll-snap-align: start;
+  background: #182038;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  transform: translateY(0) scale(1);
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, box-shadow;
+  opacity: 0;
+  transform: translate3d(0, 42px, 0) scale(0.97);
+}
+
+.destination-section.is-visible .destination-card {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition-delay: calc(var(--i) * 110ms);
+}
+
+.destination-card:hover {
+  transform: translate3d(0, -12px, 0) scale(1.03);
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.6);
+}
+
+.destination-card-media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.destination-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 18px;
+  display: block;
+  transform: scale(1.02);
+  transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.destination-card:hover .destination-card-media img {
+  transform: scale(1.08);
+}
+
+.destination-card-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 7, 13, 0.04) 20%,
+    rgba(5, 7, 13, 0.25) 48%,
+    rgba(5, 7, 13, 0.92) 100%
+  );
+}
+
+.destination-card-body {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding: 1.35rem 1.4rem;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.65);
+}
+
+.destination-card-body h3 {
+  margin: 0 0 0.4rem;
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.destination-card-body p {
+  display: none;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.destination-card-body span {
+  display: block;
+  margin-top: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #d7b56d;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* =========================================================
+   Dark theme overrides for downstream home sections
+   ========================================================= */
+body {
+  background: #0e1323;
+}
+
+.travel-app {
+  background: #0e1323;
+}
+
+#corp-section .sections-inner,
+#college-section .sections-inner,
+#highlight-section .sections-inner {
+  color: #f4f6ff;
+}
+
+#corp-section .section-heading h2,
+#college-section .section-heading h2,
+#highlight-section .section-heading h2 {
+  color: #ffffff;
+}
+
+#corp-section .eyebrow,
+#college-section .eyebrow,
+#highlight-section .eyebrow {
+  color: #d7b56d;
+}
+
+#highlight-section .home-highlight-copy p,
+#highlight-section .home-highlight-copy ul {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.carousel-wrapper-scroll {
+  background: #0e1323;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.carousel-slide-scroll {
+  background: #111a2e;
+}
+
+/* =========================================================
+   Responsive refinements for the cinematic transition
+   ========================================================= */
+@media (max-width: 900px) {
+  .destination-section {
+    margin-top: -80px; /* tablet overlap */
+  }
+
+  .destination-container {
+    padding: 60px 30px;
+    border-radius: 28px;
+  }
+
+  .destination-title {
+    font-size: 32px;
+  }
+
+}
+
+.mobile-scroll-hint {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobile-scroll-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 1.1rem 0 0.65rem;
+    color: #d7b56d;
+    background: #0e1323;
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .mobile-scroll-hint i {
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    animation: mobileScrollCue 1.8s ease-in-out infinite;
+  }
+
+  .destination-section {
+    margin-top: -40px; /* mobile overlap */
+    padding: 0 0.75rem;
+  }
+
+  .destination-container {
+    padding: 40px 18px;
+    border-radius: 20px;
+  }
+
+  .destination-title {
+    font-size: 26px;
+  }
+
+  .destination-heading {
+    margin-bottom: 2rem;
+  }
+
+  /* Cards become horizontal scroll on mobile */
+  .destination-grid {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .destination-card {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+  }
+
+  .destination-card-media img {
+    height: 190px;
+  }
+
+  .destination-card-media img {
+    height: 100%;
+  }
+}
+
+@keyframes mobileScrollCue {
+  0%,
+  100% { transform: translateY(0) rotate(45deg); opacity: 0.45; }
+  50% { transform: translateY(7px) rotate(45deg); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cinematic,
+  .mobile-scroll-hint i,
+  .destination-section,
+  .destination-card,
+  .destination-card-media img,
+  .destination-view-all,
+  .ambient-particle {
+    transition: none !important;
+    animation: none !important;
+  }
 }

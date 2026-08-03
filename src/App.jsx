@@ -24,6 +24,17 @@ import clg10 from './assets/clg (10).jpeg'
 const corporateImages = [crop1, crop2, crop3, crop4, crop5]
 const collegeImages = [clg1, clg2, clg3, clg4, clg5, clg6, clg7, clg8, clg9, clg10]
 
+// Subtle ambient dust particles drifting near the hero → destination transition.
+const ambientParticles = [
+  { left: '10%', top: '80%', size: 6, duration: 18, delay: 0 },
+  { left: '26%', top: '68%', size: 4, duration: 22, delay: 2 },
+  { left: '43%', top: '86%', size: 5, duration: 19, delay: 4 },
+  { left: '60%', top: '72%', size: 3, duration: 24, delay: 1 },
+  { left: '76%', top: '84%', size: 6, duration: 17, delay: 3 },
+  { left: '90%', top: '70%', size: 4, duration: 23, delay: 5 },
+  { left: '52%', top: '64%', size: 3, duration: 26, delay: 6 },
+]
+
 const API_URL = 'https://6a4791b7abfcbaade118ac80.mockapi.io/TripData/app_data'
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
 const EMAILJS_SERVICE_ID = 'service_1xgtzhr'
@@ -168,6 +179,73 @@ function HomePage({ appData, loading, error, totalPlaces, featuredState, searchQ
   const normalizedQuery = searchQuery.trim().toLowerCase()
   const hasSearch = normalizedQuery.length > 0
 
+  const heroWrapRef = useRef(null)
+  const destSectionRef = useRef(null)
+
+  // Scroll effect: dim + scale the hero while the destination section floats up.
+  useEffect(() => {
+    const heroWrap = heroWrapRef.current
+    const destSection = destSectionRef.current
+    if (!heroWrap || !destSection) return
+
+    let ticking = false
+    const update = () => {
+      ticking = false
+      const vh = window.innerHeight || 1
+      // Progress is based on document scroll, so the hero starts fully vivid
+      // rather than appearing dimmed on the initial render.
+      const progress = Math.min(Math.max(window.scrollY / (vh * 0.7), 0), 1)
+      const eased = progress * progress * (3 - 2 * progress) // smoothstep
+      const sectionRect = destSection.getBoundingClientRect()
+      const exitProgress = Math.min(Math.max(-sectionRect.top / 300, 0), 1)
+
+      // Fade the hero fully away before it reaches the destination heading.
+      heroWrap.style.opacity = (1 - eased).toFixed(3)
+      heroWrap.style.transform = `scale(${(1 - eased * 0.03).toFixed(4)})`
+
+      // Let the hero lead the transition; destinations float in after it fades.
+      destSection.style.opacity = (eased * (1 - exitProgress)).toFixed(3)
+      destSection.style.transform = `translateY(${(((1 - eased) * 80) - (exitProgress * 32)).toFixed(1)}px)`
+    }
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(update)
+      }
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
+  // Reveal destination cards one by one when the section enters the viewport.
+  useEffect(() => {
+    const destSection = destSectionRef.current
+    if (!destSection) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            destSection.classList.add('is-visible')
+            observer.disconnect()
+          }
+        })
+      },
+      { threshold: 0.15 },
+    )
+
+    observer.observe(destSection)
+    return () => observer.disconnect()
+  }, [])
+
 const [corporateScroll, setCorporateScroll] = useState(0)
 const [corporateTransition, setCorporateTransition] = useState(true)
 
@@ -308,9 +386,31 @@ useEffect(() => {
     return { states, cities, places }
   }, [appData.states, normalizedQuery, hasSearch])
 
-  return (
+return (
     <>
-      <HeroCarousel />
+      <div className="hero-cinematic" ref={heroWrapRef}>
+        <HeroCarousel />
+        <div className="ambient-particles" aria-hidden="true">
+          {ambientParticles.map((p, i) => (
+            <span
+              key={i}
+              className="ambient-particle"
+              style={{
+                left: p.left,
+                top: p.top,
+                width: p.size,
+                height: p.size,
+                animationDuration: `${p.duration}s`,
+                animationDelay: `${p.delay}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="mobile-scroll-hint" aria-hidden="true">
+        <span>Discover destinations</span>
+        <i />
+      </div>
 
       {hasSearch && (
         <section className="container sections search-results">
@@ -390,25 +490,36 @@ useEffect(() => {
       )}
 
       <main>
-        <section className="sections-wrapper" id="states-section" data-animate>
-          <div className="sections-inner">
-            <div className="section-heading">
+        <section className="destination-section" ref={destSectionRef} id="states-section">
+          <div className="destination-container">
+            <div className="destination-heading">
               <div>
-                <p className="eyebrow">Destinations</p>
-                <h2>Popular states to explore</h2>
+                <p className="destination-eyebrow">Destinations</p>
+                <h2 className="destination-title">Popular states to explore</h2>
               </div>
-            </div>
-            <div className="state-grid">
-            {appData.states.map((state) => (
-              <Link key={state.state_id} to={`/state/${state.state_id}`} className="state-card">
-                <img src={state.image} alt={state.name} />
-                <div className="state-card-body">
-                  <h3>{state.name}</h3>
-                  <p>{state.description}</p>
-                  <span>{state.cities.length} cities</span>
-                </div>
+              <Link to="/" className="destination-view-all" aria-label="View all states">
+                View all states <span aria-hidden="true">→</span>
               </Link>
-            ))}
+            </div>
+            <div className="destination-grid">
+              {appData.states.map((state, index) => (
+                <Link
+                  key={state.state_id}
+                  to={`/state/${state.state_id}`}
+                  className="destination-card"
+                  style={{ '--i': index }}
+                >
+                  <div className="destination-card-media">
+                    <img src={state.image} alt={state.name} />
+                    <div className="destination-card-shade" />
+                  </div>
+                  <div className="destination-card-body">
+                    <h3>{state.name}</h3>
+                    <p>{state.description}</p>
+                    <span>{state.cities.length} cities</span>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         </section>
