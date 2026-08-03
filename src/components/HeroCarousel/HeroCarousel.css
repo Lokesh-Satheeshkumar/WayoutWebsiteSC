@@ -16,8 +16,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   isolation: isolate;
+  
+  padding-top: 90px;  
 }
 
 /* =========================================================
@@ -124,6 +126,7 @@
   width: 100%;
   flex: 1;
   display: flex;
+   padding-top: 20px;
   align-items: center;
   justify-content: center;
   padding: 1rem 0 2rem;
@@ -153,6 +156,7 @@
   border-radius: 26px;
   overflow: hidden;
   background: #0b0f1a;
+
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
   transform: translateY(0) scale(0.8);
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
@@ -500,7 +504,9 @@
   }
 
   .hero-headline {
-    margin-top: 0;
+     margin-top: 0;
+
+  margin-bottom: 1rem;
   }
 
   .hero-headline p {

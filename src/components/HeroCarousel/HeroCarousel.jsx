@@ -204,12 +204,12 @@ export default function HeroCarousel() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.42, duration: 0.45 }}
                         >
-                          {/* <a href="/enquiry" className="hero-cta">
-                            Explore Now
+                          <a href="#/enquiry" className="hero-cta">
+                            Enquire now
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                               <path d="M5 12h14M13 6l6 6-6 6" />
                             </svg>
-                          </a> */}
+                          </a>
                         </motion.div>
                       </motion.div>
                     )}

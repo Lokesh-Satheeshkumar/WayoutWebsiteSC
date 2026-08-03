@@ -101,6 +101,8 @@ function AppShell() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -135,6 +137,16 @@ function AppShell() {
     }
   }, [])
 
+  useEffect(() => {
+    const updateBackToTop = () => {
+      setShowBackToTop(window.scrollY > 360)
+      setIsHeaderScrolled(window.scrollY > 12)
+    }
+    updateBackToTop()
+    window.addEventListener('scroll', updateBackToTop, { passive: true })
+    return () => window.removeEventListener('scroll', updateBackToTop)
+  }, [])
+
   const appData = useMemo(() => normalizeTravelData(travelData), [travelData])
   const totalPlaces = appData.states.reduce((count, state) => count + state.cities.reduce((cityCount, city) => cityCount + city.places.length, 0), 0)
   const featuredState = appData.states[0]
@@ -148,13 +160,13 @@ function AppShell() {
 
   return (
     <div className="travel-app">
-      <header className="top-nav top-nav--hero">
+      <header className={`top-nav top-nav--hero ${isHeaderScrolled ? 'is-scrolled' : ''}`}>
         <div className="container nav-shell">
           <Link className="brand" to="/">Wayout Tourz</Link>
           <div className="nav-actions">
             <nav className="desktop-nav" aria-label="Main navigation">
               <Link className="nav-link active" to="/">Home</Link>
-              <Link className="nav-link" to="/enquiry">Enquiry</Link>
+              <Link className="nav-link nav-link--primary" to="/enquiry">Enquiry <span aria-hidden="true">→</span></Link>
             </nav>
          {/* //   <form className="search-box" onSubmit={handleSearchSubmit}>
               <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search destinations" />
@@ -171,6 +183,14 @@ function AppShell() {
         <Route path="/city/:cityId" element={<CityPage appData={appData} />} />
         <Route path="/place/:placeId" element={<PlacePage appData={appData} />} />
       </Routes>
+      <button
+        className={`back-to-top ${showBackToTop ? 'is-visible' : ''}`}
+        type="button"
+        aria-label="Back to top"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      >
+        <span aria-hidden="true">↑</span>
+      </button>
     </div>
   )
 }
