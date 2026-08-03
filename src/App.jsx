@@ -191,7 +191,7 @@ const collegeImagesExtended = [
 useEffect(() => {
   corporateTimerRef.current = setInterval(() => {
     setCorporateScroll((prev) => prev + 1)
-  }, 100)
+  }, 1000)
 
   return () => clearInterval(corporateTimerRef.current)
 }, [])
@@ -223,7 +223,7 @@ useEffect(() => {
   useEffect(() => {
     collegeTimerRef.current = setInterval(() => {
       setCollegeScroll((prev) => prev + 1)
-    }, 100) // Very slow: 3 seconds per image
+    }, 1000) // Very slow: 3 seconds per image
     return () => clearInterval(collegeTimerRef.current)
   }, [])
 
