@@ -129,7 +129,8 @@ export default function HeroCarousel() {
             swiper.params.navigation.nextEl = nextRef.current
           }}
           breakpoints={{
-            0: { slidesPerView: 1, coverflowEffect: { rotate: 28, depth: 120, modifier: 1 } },
+            0: { slidesPerView: 1.35, coverflowEffect: { rotate: 30, depth: 110, modifier: 1 } },
+            480: { slidesPerView: 1.6, coverflowEffect: { rotate: 30, depth: 120, modifier: 1 } },
             768: { slidesPerView: 3, coverflowEffect: { rotate: 32, depth: 150, modifier: 1.1 } },
             1200: { slidesPerView: 5, coverflowEffect: { rotate: 32, depth: 160, modifier: 1.2 } },
           }}
