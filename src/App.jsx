@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useState, useRef } from 'react'
 import { HashRouter, Link, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import emailjs from '@emailjs/browser'
+import HeroCarousel from './components/HeroCarousel/HeroCarousel'
 import './App.css'
 
 // Import carousel images
@@ -309,22 +310,7 @@ useEffect(() => {
 
   return (
     <>
-      <section className="hero-section">
-        <div className="hero-grid">
-          <div className="hero-copy">
-            <span className="eyebrow">Travel Blue • Live itinerary feed</span>
-            <h1>Wayout Tourz</h1>
-            <p>Your Next Adventure Starts Here.
-Explore breathtaking destinations with comfort, confidence, and unforgettable memories.</p>
-            <Link to="/enquiry" className="hero-cta-button">Enquiry</Link>
-            <div className="hero-stats">
-              <div><strong>{appData.states.length}+</strong><span>States</span></div>
-              <div><strong>{totalPlaces}+</strong><span>Places</span></div>
-              <div><strong>4.9</strong><span>Traveler rating</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroCarousel />
 
       {hasSearch && (
         <section className="container sections search-results">
