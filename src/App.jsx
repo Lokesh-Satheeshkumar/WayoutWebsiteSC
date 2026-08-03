@@ -314,7 +314,8 @@ useEffect(() => {
           <div className="hero-copy">
             <span className="eyebrow">Travel Blue • Live itinerary feed</span>
             <h1>Wayout Tourz</h1>
-            <p>Discover destinations, travel moods, and city highlights directly from the live MockAPI response.</p>
+            <p>Your Next Adventure Starts Here.
+Explore breathtaking destinations with comfort, confidence, and unforgettable memories.</p>
             <Link to="/enquiry" className="hero-cta-button">Enquiry</Link>
             <div className="hero-stats">
               <div><strong>{appData.states.length}+</strong><span>States</span></div>
