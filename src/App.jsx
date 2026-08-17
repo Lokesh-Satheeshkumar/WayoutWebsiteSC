@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import './App.css'
 import crop1 from './assets/crop1.jpeg'; import crop2 from './assets/crop2.jpeg'; import crop3 from './assets/corp3.jpeg'; import crop4 from './assets/crop4.jpeg'; import crop5 from './assets/crop5.jpeg'
 import clg1 from './assets/clg (1).jpeg'; import clg2 from './assets/clg (2).jpeg'; import clg3 from './assets/clg (3).jpeg'; import clg4 from './assets/clg (4).jpeg'; import clg5 from './assets/clg (5).jpeg'; import clg6 from './assets/clg (6).jpeg'
-import heroVideo from './assets/landscape1.mp4'
+import heroVideo from './assets/land.mp4'
 
 const API_URL = 'https://6a4791b7abfcbaade118ac80.mockapi.io/TripData/app_data'; const EMAILJS_SERVICE_ID = 'service_1xgtzhr'; const EMAILJS_TEMPLATE_ID = 'template_f3li2kr'; const EMAILJS_PUBLIC_KEY = 'AdfOAXHsmzpiT0i-h'; const fallbackImage = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
 const corporatePhotos = [crop1, crop2, crop3, crop4, crop5]; const collegePhotos = [clg1, clg2, clg3, clg4, clg5, clg6]
