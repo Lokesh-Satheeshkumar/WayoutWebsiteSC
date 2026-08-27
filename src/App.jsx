@@ -8,7 +8,7 @@ import {
     useParams,
     useLocation
 } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence} from 'framer-motion'
 import './App.css'
 import crop1 from './assets/crop1.jpeg'; import crop2 from './assets/crop2.jpeg'; import crop3 from './assets/corp3.jpeg'; import crop4 from './assets/crop4.jpeg'; import crop5 from './assets/crop5.jpeg'
 import clg1 from './assets/clg (1).jpeg'; import clg2 from './assets/clg (2).jpeg'; import clg3 from './assets/clg (3).jpeg'; import clg4 from './assets/clg (4).jpeg'; import clg5 from './assets/clg (5).jpeg'; import clg6 from './assets/clg (6).jpeg'
@@ -23,7 +23,19 @@ const corporatePhotos = [crop1, crop2, crop3, crop4, crop5]; const collegePhotos
 const fadeUp = { hidden: { opacity: 0, y: 28 }, visible: (delay = 0) => ({ opacity: 1, y: 0, transition: { duration: .7, delay } }) }
 const scrollToSection = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
-function normalise(payload) { const source = Array.isArray(payload) ? payload[0] : payload || {}; return { banners: (source?.ui_data?.home?.banners || []).filter((item) => item?.is_visible !== false).map((item) => ({ title: item.title || 'Discover India', subtitle: item.subtitle || 'Travel your way', image: item.image || fallbackImage })), states: (source?.states || []).filter((item) => item?.is_visible !== false).map((item) => ({ id: String(item.state_id), name: item.name || 'Destination', image: item.image || fallbackImage, description: item.description || '', cities: (item.cities || []).filter((city) => city?.is_visible !== false).map((city) => ({ id: String(city.city_id), name: city.name || 'City', description: city.description || '', image: city.image || item.image || fallbackImage, places: (city.places || []).filter((place) => place?.is_visible !== false).map((place) => ({ id: String(place.place_id), name: place.name || 'Place', day: place.day || '1', time: place.time || 'Flexible', image: place.place_img || city.image || item.image || fallbackImage })) })) })) } }
+function normalise(payload) { const source = Array.isArray(payload) ? payload[0] : payload || {}; return { banners: (source?.ui_data?.home?.banners || []).filter((item) => item?.is_visible !== false).map((item) => ({ title: item.title || 'Discover India', subtitle: item.subtitle || 'Travel your way', image: item.image || fallbackImage })), states: (source?.states || []).filter((item) => item?.is_visible !== false).map((item) => ({ id: String(item.state_id), name: item.name || 'Destination', image: item.image || fallbackImage, description: item.description || '', cities: (item.cities || []).filter((city) => city?.is_visible !== false).map((city) => ({ id: String(city.city_id), name: city.name || 'City', description: city.description || '', image: city.image || item.image || fallbackImage,
+     places: (city.places || [])
+    .filter(
+        (place) =>
+            place?.is_visible !== false
+    )
+    .map((place) => ({
+        id: String(place.place_id),
+        name: place.name || 'Place',
+        day: place.day || '1',
+        time: place.time || 'Flexible',
+        image: place.place_img || ''
+    })) })) })) } }
 function ScrollButton({ target, children, className = '' }) { return <button className={`scroll-button ${className}`} onClick={() => scrollToSection(target)}>{children}</button> }
 function Navigation() { return <header className="nav-wrap"><Link className="wordmark" to="/">Wayout Tourz</Link><nav className="nav-links"><Link to="/">Home</Link><ScrollButton target="destinations">Destinations</ScrollButton><ScrollButton target="trip-photos">Trip photos</ScrollButton><ScrollButton target="about">About</ScrollButton><Link className="nav-cta" to="/enquiry">Plan your trip <b>→</b></Link></nav></header> }
 function ImageLightbox({ image, alt, onClose }) { if (!image) return null; return <button className="lightbox" onClick={onClose} aria-label="Close image preview"><img src={image} alt={alt} /></button> }
@@ -117,34 +129,319 @@ function StatePage({ travel }) {
 
         </section>
     );
-}function CityPage({ travel }) {
+}
+
+function CityPage({ travel }) {
+
     const { stateId, cityId } = useParams();
 
-    const state = travel.states.find((item) => item.id === stateId);
-    const city = state?.cities.find((item) => item.id === cityId);
 
-    const [selectedDay, setSelectedDay] = useState('1');
+    /* =========================================================
+       FIND STATE
+    ========================================================= */
+
+    const state = travel.states.find(
+        (item) => item.id === stateId
+    );
+
+
+    /* =========================================================
+       FIND CITY
+    ========================================================= */
+
+    const city = state?.cities.find(
+        (item) => item.id === cityId
+    );
+
+
+    /* =========================================================
+       STATE
+    ========================================================= */
+
+    const [selectedDay, setSelectedDay] =
+        useState('1');
+
+    const [currentImageIndex, setCurrentImageIndex] =
+        useState(0);
+
+
+    /* =========================================================
+       GET DAYS
+    ========================================================= */
+
+    const days = city
+        ? [
+            ...new Set(
+                city.places.map(
+                    (place) =>
+                        String(
+                            place.day || '1'
+                        )
+                )
+            )
+        ].sort(
+            (a, b) =>
+                Number(a) - Number(b)
+        )
+        : [];
+
+
+    /* =========================================================
+       SELECTED DAY PLACES
+    ========================================================= */
+
+    const selectedPlaces = city
+        ? city.places
+            .filter(
+                (place) =>
+                    String(
+                        place.day || '1'
+                    ) === selectedDay
+            )
+            .sort((a, b) => {
+
+                const timeA =
+                    a.time || '';
+
+                const timeB =
+                    b.time || '';
+
+                return timeA.localeCompare(
+                    timeB
+                );
+            })
+        : [];
+
+
+    /* =========================================================
+       ONLY PLACES HAVING IMAGES
+       
+       null
+       undefined
+       ""
+       whitespace
+       
+       are skipped.
+    ========================================================= */
+
+    const imagePlaces =
+        selectedPlaces.filter(
+            (place) =>
+                typeof place.image ===
+                    'string' &&
+                place.image.trim() !== ''
+        );
+
+
+    /* =========================================================
+       RESET IMAGE WHEN DAY CHANGES
+    ========================================================= */
+
+    useEffect(() => {
+
+        setCurrentImageIndex(0);
+
+    }, [selectedDay]);
+
+
+    /* =========================================================
+       VALIDATE IMAGE INDEX
+    ========================================================= */
+
+    useEffect(() => {
+
+        if (
+            imagePlaces.length === 0
+        ) {
+
+            setCurrentImageIndex(0);
+
+            return;
+        }
+
+
+        if (
+            currentImageIndex >=
+            imagePlaces.length
+        ) {
+
+            setCurrentImageIndex(0);
+
+        }
+
+    }, [
+        imagePlaces.length,
+        currentImageIndex
+    ]);
+
+
+    /* =========================================================
+       AUTO PHOTO SLIDER
+       
+       4 SECONDS
+    ========================================================= */
+
+    useEffect(() => {
+
+        if (
+            imagePlaces.length <= 1
+        ) {
+            return;
+        }
+
+
+        const interval =
+            setInterval(() => {
+
+                setCurrentImageIndex(
+                    (previousIndex) =>
+                        (
+                            previousIndex + 1
+                        ) %
+                        imagePlaces.length
+                );
+
+            }, 4000);
+
+
+        return () => {
+
+            clearInterval(interval);
+
+        };
+
+    }, [
+        imagePlaces.length
+    ]);
+
+
+    /* =========================================================
+       INVALID CITY
+    ========================================================= */
 
     if (!city || !state) {
-        return <Navigate to="/" replace />;
+
+        return (
+            <Navigate
+                to="/"
+                replace
+            />
+        );
+
     }
 
-    // Get all available days from the itinerary
-    const days = [...new Set(
-        city.places.map((place) => String(place.day || '1'))
-    )].sort((a, b) => Number(a) - Number(b));
 
-    // Places belonging only to selected day
-    const selectedPlaces = city.places
-        .filter((place) => String(place.day || '1') === selectedDay)
-        .sort((a, b) => {
-            const timeA = a.time || '';
-            const timeB = b.time || '';
-            return timeA.localeCompare(timeB);
-        });
+    /* =========================================================
+       CURRENT IMAGE PLACE
+    ========================================================= */
+
+    const currentPlace =
+        imagePlaces.length > 0
+            ? imagePlaces[
+                currentImageIndex %
+                imagePlaces.length
+            ]
+            : null;
+
+
+    /* =========================================================
+       NEXT PHOTO
+    ========================================================= */
+
+    const nextPhoto = () => {
+
+        if (
+            imagePlaces.length <= 1
+        ) {
+            return;
+        }
+
+
+        setCurrentImageIndex(
+            (previousIndex) =>
+                (
+                    previousIndex + 1
+                ) %
+                imagePlaces.length
+        );
+
+    };
+
+
+    /* =========================================================
+       PREVIOUS PHOTO
+    ========================================================= */
+
+    const previousPhoto = () => {
+
+        if (
+            imagePlaces.length <= 1
+        ) {
+            return;
+        }
+
+
+        setCurrentImageIndex(
+            (previousIndex) =>
+                (
+                    previousIndex -
+                    1 +
+                    imagePlaces.length
+                ) %
+                imagePlaces.length
+        );
+
+    };
+
+
+    /* =========================================================
+       SCROLL TO PHOTOS
+    ========================================================= */
+
+    const scrollToPhotos = () => {
+
+        const section =
+            document.getElementById(
+                'itinerary-photos'
+            );
+
+
+        if (section) {
+
+            section.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+        }
+
+    };
+
+
+    /* =========================================================
+       CITY PHOTO DESCRIPTION
+       
+       Uses city description from API.
+    ========================================================= */
+
+    const cityPhotoDescription =
+        city.description ||
+        `Explore the beautiful places,
+        experiences and memorable
+        moments waiting for you in
+        ${city.name}.`;
+
 
     return (
-        <section className="detail-page itinerary-page">
+
+        <section
+            className="detail-page itinerary-page"
+        >
+
+
+            {/* =================================================
+                BACK
+            ================================================= */}
 
             <Link
                 className="text-link"
@@ -153,90 +450,585 @@ function StatePage({ travel }) {
                 ← Back to {state.name}
             </Link>
 
-            <p className="eyebrow">
-                {state.name} · itinerary
-            </p>
 
-            <h1>{city.name}</h1>
+            {/* =================================================
+                CITY INTRO
+            ================================================= */}
 
-            <p className="detail-copy">
-                {city.description}
-            </p>
+            <div className="city-header">
 
-            {/* DAY TABS */}
-            <div className="day-tabs">
-                {days.map((day) => (
-                    <button
-                        key={day}
-                        className={`day-tab ${selectedDay === day ? 'active' : ''
-                            }`}
-                        onClick={() => setSelectedDay(day)}
-                    >
-                        Day {day}
-                    </button>
-                ))}
+                <div className="city-heading-content">
+
+
+                    {/* STATE */}
+
+                    <p className="eyebrow">
+                        {state.name} · itinerary
+                    </p>
+
+
+                    {/* CITY */}
+
+                    <h1>
+                        {city.name}
+                    </h1>
+
+
+
+
+                    {/* =================================================
+                        SEE ITINERARY PHOTOS
+                    ================================================= */}
+
+                    {imagePlaces.length > 0 && (
+
+                        <button
+                            type="button"
+                            className="see-itinerary-photos"
+                            onClick={scrollToPhotos}
+                        >
+
+                            <span>
+                                See Itinerary Photos
+                            </span>
+
+                            <b>
+                                ↓
+                            </b>
+
+                        </button>
+
+                    )}
+
+                </div>
+
             </div>
 
-            {/* SELECTED DAY */}
-            <div className="selected-day-heading">
-                <p>DAY {selectedDay}</p>
+
+        
+
+            {/* =================================================
+                DAY TABS
+            ================================================= */}
+
+            <div className="day-tabs">
+
+                {days.map(
+                    (day) => (
+
+                        <button
+                            key={day}
+                            type="button"
+
+                            className={
+                                `day-tab ${
+                                    selectedDay === day
+                                        ? 'active'
+                                        : ''
+                                }`
+                            }
+
+                            onClick={() => {
+
+                                setSelectedDay(
+                                    day
+                                );
+
+                                setCurrentImageIndex(
+                                    0
+                                );
+
+                            }}
+                        >
+
+                            Day {day}
+
+                        </button>
+
+                    )
+                )}
+
+            </div>
+
+
+            {/* =================================================
+                DAY HEADING
+            ================================================= */}
+
+            <div
+                className="selected-day-heading"
+            >
+
+                <p>
+                    DAY {selectedDay}
+                </p>
+
+
                 <h2>
                     Day {selectedDay} Itinerary
                 </h2>
+
+
                 <span>
-                    {selectedPlaces.length} places to explore
+                    {selectedPlaces.length}{' '}
+                    {selectedPlaces.length === 1
+                        ? 'place'
+                        : 'places'}{' '}
+                    to explore
                 </span>
+
             </div>
 
-            {/* PLACES FOR SELECTED DAY */}
+
+            {/* =================================================
+                ITINERARY LIST
+            ================================================= */}
+
             <div className="day-itinerary">
 
-                {selectedPlaces.map((place, index) => (
+                {selectedPlaces.map(
+                    (
+                        place,
+                        index
+                    ) => (
 
-                    <article
-                        className="day-place-card"
-                        key={place.id}
-                    >
+                        <article
+                            className="day-place-card"
+                            key={place.id}
+                        >
 
-                        <div className="day-place-content">
+                            <div
+                                className="day-place-content"
+                            >
 
-    <div className="day-place-number">
-        {String(index + 1).padStart(2, '0')}
-    </div>
 
-    <div className="day-place-info">
-        {place.time && place.time !== 'Flexible' && (
-            <span className="day-place-time">
-                {place.time}
-            </span>
-        )}
+                                {/* NUMBER */}
 
-        <h3>{place.name}</h3>
-    </div>
+                                <div
+                                    className="day-place-number"
+                                >
 
-</div>
-                    </article>
+                                    {String(
+                                        index + 1
+                                    ).padStart(
+                                        2,
+                                        '0'
+                                    )}
 
-                ))}
+                                </div>
 
-                {selectedPlaces.length === 0 && (
-                    <div className="empty-day">
-                        No places planned for Day {selectedDay}.
-                    </div>
+
+                                {/* PLACE */}
+
+                                <div
+                                    className="day-place-info"
+                                >
+
+                                    {place.time &&
+                                        place.time !==
+                                            'Flexible' && (
+
+                                            <span
+                                                className="day-place-time"
+                                            >
+                                                {place.time}
+                                            </span>
+
+                                        )}
+
+
+                                    <h3>
+                                        {place.name}
+                                    </h3>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    )
                 )}
 
-            </div>)
 
-            <Link
-                className="button primary"
-                to="/enquiry"
+                {/* EMPTY DAY */}
+
+                {selectedPlaces.length === 0 && (
+
+                    <div className="empty-day">
+
+                        No places planned for
+                        Day {selectedDay}.
+
+                    </div>
+
+                )}
+
+            </div>
+
+
+            {/* =================================================
+                ITINERARY PHOTOS
+            ================================================= */}
+
+            {currentPlace && (
+
+                <section
+                    id="itinerary-photos"
+                    className="itinerary-photos-section"
+                >
+
+
+                    {/* =================================================
+                        PHOTO SECTION HEADER
+                    ================================================= */}
+
+                    <div
+                        className="itinerary-photos-heading"
+                    >
+
+                        <div>
+
+                            <p className="eyebrow">
+                                {city.name} · journey
+                            </p>
+
+
+                            <h2>
+                                Moments from
+                                <br />
+
+                                <span>
+                                    your itinerary.
+                                </span>
+                            </h2>
+
+                        </div>
+
+
+                    </div>
+
+
+                    {/* =================================================
+                        IMAGE + CITY DESCRIPTION
+                    ================================================= */}
+
+                    <div
+                        className="itinerary-photos-layout"
+                    >
+
+
+                        {/* =================================================
+                            LEFT IMAGE
+                        ================================================= */}
+
+                        <div
+                            className="place-photo-box"
+                        >
+
+
+                            {/* IMAGE */}
+
+                            <AnimatePresence
+                                mode="wait"
+                            >
+
+                                <motion.img
+
+                                    key={
+                                        currentPlace.id
+                                    }
+
+                                    src={
+                                        currentPlace.image
+                                    }
+
+                                    alt={
+                                        currentPlace.name
+                                    }
+
+                                    className="place-photo-image"
+
+
+                                    initial={{
+                                        opacity: 0,
+                                        scale: 1.04
+                                    }}
+
+
+                                    animate={{
+                                        opacity: 1,
+                                        scale: 1
+                                    }}
+
+
+                                    exit={{
+                                        opacity: 0,
+                                        scale: 0.99
+                                    }}
+
+
+                                    transition={{
+                                        duration: 0.65,
+
+                                        ease: [
+                                            0.22,
+                                            1,
+                                            0.36,
+                                            1
+                                        ]
+                                    }}
+
+                                />
+
+                            </AnimatePresence>
+
+
+                            {/* IMAGE OVERLAY */}
+
+                            <div
+                                className="place-photo-overlay"
+                            />
+
+
+                            {/* =================================================
+                                PREVIOUS
+                            ================================================= */}
+
+                            {imagePlaces.length > 1 && (
+
+                                <button
+                                    type="button"
+
+                                    className={
+                                        `place-photo-nav
+                                         place-photo-nav-left`
+                                    }
+
+                                    aria-label="Previous photo"
+
+                                    onClick={
+                                        previousPhoto
+                                    }
+                                >
+
+                                    <span>
+                                        ←
+                                    </span>
+
+                                </button>
+
+                            )}
+
+
+                            {/* =================================================
+                                NEXT
+                            ================================================= */}
+
+                            {imagePlaces.length > 1 && (
+
+                                <button
+                                    type="button"
+
+                                    className={
+                                        `place-photo-nav
+                                         place-photo-nav-right`
+                                    }
+
+                                    aria-label="Next photo"
+
+                                    onClick={
+                                        nextPhoto
+                                    }
+                                >
+
+                                    <span>
+                                        →
+                                    </span>
+
+                                </button>
+
+                            )}
+
+
+                            {/* =================================================
+                                CURRENT PLACE
+                            ================================================= */}
+
+                            <div
+                                className="place-photo-name"
+                            >
+
+                                <p>
+                                    {city.name}
+                                </p>
+
+
+                                <h2>
+                                    {currentPlace.name}
+                                </h2>
+
+                            </div>
+
+
+                            {/* =================================================
+                                DOTS
+                            ================================================= */}
+
+                            {imagePlaces.length > 1 && (
+
+                                <div
+                                    className="place-photo-dots"
+                                >
+
+                                    {imagePlaces.map(
+                                        (
+                                            place,
+                                            index
+                                        ) => (
+
+                                            <button
+                                                key={
+                                                    place.id
+                                                }
+
+                                                type="button"
+
+                                                aria-label={
+                                                    `Show ${place.name}`
+                                                }
+
+                                                className={
+                                                    index ===
+                                                    currentImageIndex
+                                                        ? 'active'
+                                                        : ''
+                                                }
+
+                                                onClick={() =>
+                                                    setCurrentImageIndex(
+                                                        index
+                                                    )
+                                                }
+                                            />
+
+                                        )
+                                    )}
+
+                                </div>
+
+                            )}
+
+                        </div>
+
+
+                        {/* =================================================
+                            RIGHT CITY INFORMATION
+                        ================================================= */}
+
+                        <div
+                            className="place-photo-description"
+                        >
+
+                            <p className="eyebrow">
+                                About {city.name}
+                            </p>
+
+
+                            <p
+                                className="city-photo-description"
+                            >
+                                {cityPhotoDescription}
+                            </p>
+
+
+                            {/* CURRENT STOP */}
+
+                            <div
+                                className="photo-side-detail"
+                            >
+
+                                <span>
+                                    CURRENT STOP
+                                </span>
+
+                                <strong>
+                                    {currentPlace.name}
+                                </strong>
+
+                            </div>
+
+
+                            {/* DAY */}
+
+                            <div
+                                className="photo-side-detail"
+                            >
+
+                                <span>
+                                    ITINERARY
+                                </span>
+
+                                <strong>
+                                    Day {selectedDay}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {/* =================================================
+                        PHOTO FOOTER
+                    ================================================= */}
+
+                    <div
+                        className="place-photo-footer"
+                    >
+
+                        <span>
+                            {city.name}
+                        </span>
+
+
+                        <span>
+                            {imagePlaces.length}{' '}
+
+                            {imagePlaces.length === 1
+                                ? 'PHOTO'
+                                : 'PHOTOS'}
+                        </span>
+
+                    </div>
+
+                </section>
+
+            )}
+
+
+            {/* =================================================
+                PLAN JOURNEY
+            ================================================= */}
+
+            <div
+                className="city-plan-button"
             >
-                Plan this journey →
-            </Link>
+
+                <Link
+                    className="button primary"
+                    to="/enquiry"
+                >
+                    Plan this journey →
+                </Link>
+
+            </div>
 
         </section>
     );
-} 
+}
+
 function EnquiryPage() {
     const [form, setForm] = useState({
         fullName: '',
