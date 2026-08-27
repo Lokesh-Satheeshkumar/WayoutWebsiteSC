@@ -2838,3 +2838,47 @@ h2 em {
     }
 }
 
+/* =========================================================
+   ITINERARY PHOTO CARD — HOVER EFFECT
+========================================================= */
+
+.place-photo-box {
+    border: 1px solid rgba(213, 184, 106, 0);
+    transition:
+        border-color .4s ease,
+        box-shadow .4s ease,
+        transform .4s ease;
+}
+
+.place-photo-box:hover {
+    border-color: rgba(213, 184, 106, 0.35);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(213, 184, 106, 0.12);
+    transform: translateY(-4px);
+}
+
+.place-photo-image {
+    transition: transform .8s cubic-bezier(.22, 1, .36, 1), filter .6s ease;
+}
+
+.place-photo-box:hover .place-photo-image {
+    transform: scale(1.07);
+    filter: saturate(1.12) brightness(1.03);
+}
+
+.place-photo-overlay {
+    transition: opacity .4s ease;
+}
+
+.place-photo-box:hover .place-photo-overlay {
+    opacity: .85;
+}
+
+.place-photo-name {
+    transition: transform .4s ease;
+}
+
+.place-photo-box:hover .place-photo-name {
+    transform: translateY(-3px);
+}

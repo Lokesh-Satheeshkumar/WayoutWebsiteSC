@@ -22,8 +22,7 @@ const API_URL = 'https://6a4791b7abfcbaade118ac80.mockapi.io/TripData/app_data';
 const corporatePhotos = [crop1, crop2, crop3, crop4, crop5]; const collegePhotos = [clg1, clg2, clg3, clg4, clg5, clg6]
 const fadeUp = { hidden: { opacity: 0, y: 28 }, visible: (delay = 0) => ({ opacity: 1, y: 0, transition: { duration: .7, delay } }) }
 const scrollToSection = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-const [currentImageIndex, setCurrentImageIndex] = useState(0);
-const [isPhotoHovered, setIsPhotoHovered] = useState(false);
+
 
 
 function normalise(payload) { const source = Array.isArray(payload) ? payload[0] : payload || {}; return { banners: (source?.ui_data?.home?.banners || []).filter((item) => item?.is_visible !== false).map((item) => ({ title: item.title || 'Discover India', subtitle: item.subtitle || 'Travel your way', image: item.image || fallbackImage })), states: (source?.states || []).filter((item) => item?.is_visible !== false).map((item) => ({ id: String(item.state_id), name: item.name || 'Destination', image: item.image || fallbackImage, description: item.description || '', cities: (item.cities || []).filter((city) => city?.is_visible !== false).map((city) => ({ id: String(city.city_id), name: city.name || 'City', description: city.description || '', image: city.image || item.image || fallbackImage,
@@ -161,12 +160,14 @@ function CityPage({ travel }) {
        STATE
     ========================================================= */
 
-    const [selectedDay, setSelectedDay] =
-        useState('1');
+const [selectedDay, setSelectedDay] =
+    useState('1');
 
-    const [currentImageIndex, setCurrentImageIndex] =
-        useState(0);
+const [currentImageIndex, setCurrentImageIndex] =
+    useState(0);
 
+const [isPhotoHovered, setIsPhotoHovered] =
+    useState(false);
 
     /* =========================================================
        GET DAYS
