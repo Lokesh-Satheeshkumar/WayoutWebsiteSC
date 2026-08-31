@@ -16,7 +16,7 @@ import heroImage from './assets/hero.jpg'
 
 
 
-const WHATSAPP_API_URL = 'http://localhost:3000/api/enquiry';
+const WHATSAPP_API_URL = 'https://wayoutwebsitebackend.onrender.com/api/enquiry';
 const API_URL = 'https://6a4791b7abfcbaade118ac80.mockapi.io/TripData/app_data';
   const fallbackImage = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
 const corporatePhotos = [crop1, crop2, crop3, crop4, crop5]; const collegePhotos = [clg1, clg2, clg3, clg4, clg5, clg6]
