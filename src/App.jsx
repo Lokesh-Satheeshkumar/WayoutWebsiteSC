@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useRef,useMemo, useState } from 'react';
 
 import {
     HashRouter,
@@ -30,7 +30,7 @@ import clg4 from './assets/clg (4).jpeg';
 import clg5 from './assets/clg (5).jpeg';
 import clg6 from './assets/clg (6).jpeg';
 
-import heroImage from './assets/hero.jpg';
+import heroImage from './assets/hero2.jpg';
 
 const reviewVideos = [
     {
@@ -445,6 +445,73 @@ function HomePage({ travel, loading, error }) {
 
     const [previewIndex, setPreviewIndex] = useState(0);
 
+    const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+
+    const isAutoScroll = useRef(false);
+
+       useEffect(() => {
+    if (window.innerWidth > 800) return;
+
+    let cancelled = false;
+    let autoScrollTimer;
+
+    const handleUserScroll = () => {
+
+        // Ignore the automatic 40px page movement
+        if (isAutoScroll.current) {
+            return;
+        }
+
+        // Real user scroll
+        if (window.scrollY > 10) {
+            setShowScrollIndicator(false);
+        }
+    };
+
+    window.addEventListener("scroll", handleUserScroll, {
+        passive: true
+    });
+
+    autoScrollTimer = setTimeout(() => {
+
+        if (cancelled) return;
+
+        // User already scrolled
+        if (window.scrollY > 10) return;
+
+        // Tell scroll listener this is OUR automatic movement
+        isAutoScroll.current = true;
+
+        // Show indicator FIRST
+        setShowScrollIndicator(true);
+
+        // Small page lift
+        window.scrollTo({
+            top: 40,
+            behavior: "smooth"
+        });
+
+        // Allow real user scrolling after the animation finishes
+        setTimeout(() => {
+            isAutoScroll.current = false;
+        }, 1000);
+
+    }, 3500);
+
+    return () => {
+        cancelled = true;
+
+        clearTimeout(autoScrollTimer);
+
+        window.removeEventListener(
+            "scroll",
+            handleUserScroll
+        );
+    };
+
+}, []);
+
+
 
     /* =========================================================
        OPEN GALLERY
@@ -576,34 +643,6 @@ function HomePage({ travel, loading, error }) {
                     </motion.p>
 
 
-                    <motion.div
-                        className="hero-actions"
-                        custom={0.4}
-                        initial="hidden"
-                        animate="visible"
-                        variants={fadeUp}
-                    >
-
-                        <Link
-                            className="button primary"
-                            to="/enquiry"
-                        >
-                            Plan a journey
-                            <span>→</span>
-                        </Link>
-
-
-                        <ScrollButton
-                            className="text-link"
-                            target="destinations"
-                        >
-                            Explore destinations
-                            <span>↓</span>
-                        </ScrollButton>
-
-                    </motion.div>
-
-
                     {travel.states.length > 0 && (
 
                         <motion.div
@@ -632,7 +671,64 @@ function HomePage({ travel, loading, error }) {
 
                     )}
 
+
+
+                    <motion.div
+                        className="hero-actions"
+                        custom={0.4}
+                        initial="hidden"
+                        animate="visible"
+                        variants={fadeUp}
+                    >
+
+                        <Link
+                            className="button primary"
+                            to="/enquiry"
+                        >
+                            Plan a journey
+                            <span>→</span>
+                        </Link>
+
+
+                        <ScrollButton
+                            className="text-link"
+                            target="destinations"
+                        >
+                            Explore destinations
+                            <span>↓</span>
+                        </ScrollButton>
+
+                    </motion.div>
+
                 </div>
+
+          <button
+    className={`scroll-indicator ${
+        showScrollIndicator ? "is-visible" : ""
+    }`}
+    onClick={() => {
+        setShowScrollIndicator(false);
+
+        window.scrollTo({
+            top: window.innerHeight,
+            behavior: "smooth"
+        });
+    }}
+    aria-label="Scroll down"
+>
+    <span className="scroll-indicator-text">
+        SCROLL TO EXPLORE
+    </span>
+
+    <span className="scroll-indicator-mouse">
+        <span></span>
+    </span>
+
+    <span className="scroll-indicator-arrow">
+        ↓
+    </span>
+</button>
+            
 
             </section>
 
@@ -774,7 +870,7 @@ function HomePage({ travel, loading, error }) {
                 ABOUT / WAYOUT DIFFERENCE
             ================================================= */}
 
-            <section
+            {/* <section
                 className="section offer-section"
                 id="about"
             >
@@ -852,7 +948,7 @@ function HomePage({ travel, loading, error }) {
 
                 </div>
 
-            </section>
+            </section> */}
 
 
             {/* =================================================
@@ -3871,24 +3967,166 @@ return (
 
 
 
-            <footer className="footer">
+          <footer className="wt-footer">
 
-                <Link className="wordmark" to="/">
+    <div className="wt-footer-top">
 
-                    Wayout Tourz
+        {/* Office */}
+        <div className="wt-footer-column wt-office">
+            <Link className="wt-footer-brand" to="/">
+                Wayout Tourz
+            </Link>
 
-                </Link>
+            <h4>Head Office</h4>
+
+            <p>
+                65, TR Palayam,<br />
+                Kangeyam, Tiruppur - 638701
+            </p>
+
+            <a
+                className="wt-footer-email"
+                href="mailto:contact@wayouttourz.com"
+            >
+                contact@wayouttourz.com
+            </a>
+        </div>
 
 
+        {/* Our Branches */}
+        <div className="wt-footer-column">
+            <h4>Our Branches</h4>
 
-                <p>
+            <div className="wt-branches">
+                <span>Salem</span>
+                <span>Thiruppur</span>
+                <span>Coimbatore</span>
+                <span>Madurai</span>
+                <span>Trichy</span>
+                <span>Namakkal</span>
+                <span>Hosur</span>
+                <span>Bangalore</span>
+                <span>Chennai</span>
+                <span>Vellore</span>
+                <span>Vagamon</span>
+            </div>
+        </div>
 
-                    © 2026 Wayout Tourz · Curated Travel Experiences
 
-                </p>
+        {/* Travel Packages / SEO */}
+        <div className="wt-footer-column">
+            <h4>Travel Packages</h4>
 
-            </footer>
+            <ul className="wt-seo-list">
+                <li>Tamil Nadu Travel Packages</li>
+                <li>Best College IV Packages</li>
+                <li>College Industrial Visit Packages</li>
+                <li>Corporate Travel Packages</li>
+                <li>Group Tour Packages</li>
+                <li>Customized Tour Packages</li>
+                <li>Educational Tour Packages</li>
+                <li>Family & Friends Tour Packages</li>
+                <li>South India Tour Packages</li>
+                <li>Weekend Getaways</li>
+            </ul>
+        </div>
 
+
+        {/* Contact */}
+        <div className="wt-footer-column">
+            <h4>Contact Us</h4>
+
+            <div className="wt-contacts">
+
+                <a href="tel:+919345865387">
+                    <span>Gokul</span>
+                    <strong>93458 65387</strong>
+                </a>
+
+                <a href="tel:+918940487802">
+                    <span>Surya</span>
+                    <strong>89404 87802</strong>
+                </a>
+
+                <a href="tel:+919080515866">
+                    <span>Selva</span>
+                    <strong>90805 15866</strong>
+                </a>
+
+                <a href="tel:+918610093151">
+                    <span>Lokesh</span>
+                    <strong>86100 93151</strong>
+                </a>
+
+            </div>
+
+
+            {/* Social Media */}
+            <div className="wt-social">
+
+                <h4>Follow Us</h4>
+
+                <div className="wt-social-links">
+
+                    <a
+                        href="https://www.instagram.com/wayout_tourz/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Wayout Tourz Instagram"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <rect
+                                x="3"
+                                y="3"
+                                width="18"
+                                height="18"
+                                rx="5"
+                            />
+                            <circle cx="12" cy="12" r="4" />
+                            <circle
+                                cx="17.5"
+                                cy="6.5"
+                                r="1"
+                                className="social-dot"
+                            />
+                        </svg>
+                    </a>
+
+                    <a
+                        href="https://www.linkedin.com/company/wayout-tourz/posts/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Wayout Tourz LinkedIn"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 3.5A1.5 1.5 0 1 1 5 6.5A1.5 1.5 0 0 1 5 3.5Z" />
+                            <path d="M3.7 8.5H6.3V20H3.7Z" />
+                            <path d="M9 8.5H11.5V10.1C12.2 9 13.3 8.2 15 8.2C18 8.2 20 10.1 20 13.8V20H17.4V14.4C17.4 12.7 16.8 11.1 15 11.1C13.2 11.1 11.7 12.2 11.7 14.5V20H9Z" />
+                        </svg>
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {/* Bottom */}
+    <div className="wt-footer-bottom">
+
+        <p>
+            © 2026 Wayout Tourz · Curated Travel Experiences
+        </p>
+
+        <p>
+            Travel • Explore • Experience
+        </p>
+
+    </div>
+
+</footer>
 
 
         </div>
